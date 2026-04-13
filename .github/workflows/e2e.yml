@@ -1,0 +1,86 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: |
+            app/frontend/package-lock.json
+            e2e/package-lock.json
+
+      # ── Mock API server (substitui o backend NestJS) ─────────────────────
+      - name: Start mock API server
+        run: node e2e/mock-server/server.js &
+
+      # ── Frontend Next.js ──────────────────────────────────────────────────
+      - name: Install frontend dependencies
+        working-directory: app/frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: app/frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+        run: npm run build
+
+      - name: Copy static assets to standalone
+        working-directory: app/frontend
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Start frontend server
+        working-directory: app/frontend
+        env:
+          PORT: 3000
+          HOSTNAME: 0.0.0.0
+        run: node .next/standalone/server.js &
+
+      # ── Aguardar ambos os serviços estarem prontos ────────────────────────
+      - name: Wait for servers
+        run: |
+          echo "Waiting for mock API..."
+          timeout 30 bash -c 'until curl -sf http://localhost:3001/tasks; do sleep 1; done'
+          echo "Waiting for frontend..."
+          timeout 60 bash -c 'until curl -sf http://localhost:3000; do sleep 2; done'
+
+      # ── Testes E2E ────────────────────────────────────────────────────────
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        working-directory: e2e
+        env:
+          CI: true
+          BASE_URL: http://localhost:3000
+          API_URL: http://localhost:3001
+        run: npx playwright test
+
+      # ── Artefatos ─────────────────────────────────────────────────────────
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 30
