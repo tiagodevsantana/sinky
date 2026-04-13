@@ -22,6 +22,9 @@ Este repositório contém todos os entregáveis do desafio técnico para a vaga 
 │   ├── mock-server/        # Servidor mock (alternativa ao Docker)
 │   ├── tests/              # Arquivos de spec
 │   └── playwright.config.ts
+├── .github/
+│   └── workflows/
+│       └── e2e.yml         # Pipeline CI/CD (GitHub Actions)
 ├── PRD-REVIEW.md           # Revisão do documento de requisitos (11 issues)
 ├── BUG-REPORT.md           # Relatório de bugs (BUG-001 a BUG-015)
 └── TEST-STRATEGY.md        # Estratégia de testes: análise de risco + pirâmide
@@ -54,6 +57,12 @@ Suíte Playwright completa com:
 - **Page Object Model** com 3 POMs: `TaskListPage`, `TaskFormPage`, `AiGeneratorPage`
 - **Fixtures customizados** com setup/teardown via API para isolamento de estado
 - **Mock server** Node.js nativo para rodar sem Docker
+
+### 5. CI/CD — GitHub Actions
+Pipeline automatizado em `.github/workflows/e2e.yml` que executa a suíte completa a cada push/PR na branch `main`.
+
+### 6. Allure Dashboard
+Relatório visual com histórico de execuções publicado automaticamente no GitHub Pages após cada run do CI.
 
 ---
 
@@ -319,10 +328,48 @@ O arquivo `playwright.config.ts` usa as seguintes configurações relevantes:
 | `fullyParallel` | `false` | Os testes compartilham o mesmo banco — serialização evita conflitos de estado |
 | `workers` | `1` | Reforça a execução serial |
 | `retries` | `2` em CI, `0` local | Absorve flakiness pontual em CI sem mascarar falhas reais localmente |
-| `reporter` | `html` + `list` | Relatório HTML para análise + output legível no terminal |
+| `reporter` | `html` + `list` + `allure-playwright` | Relatório HTML, output no terminal e dados para o Allure dashboard |
 | `trace` | `on-first-retry` | Trace capturado automaticamente na primeira retry para facilitar diagnóstico |
 | `screenshot` | `only-on-failure` | Screenshots automáticos apenas em falhas |
 | `video` | `retain-on-failure` | Vídeo retido apenas em falhas para economizar espaço |
+
+---
+
+## CI/CD — GitHub Actions
+
+O workflow `.github/workflows/e2e.yml` é disparado automaticamente a cada `push` ou `pull_request` na branch `main`.
+
+**O que o pipeline faz:**
+
+| Etapa | Descrição |
+|---|---|
+| Mock API server | Sobe `e2e/mock-server/server.js` em background (porta 3001) |
+| Build frontend | `npm ci` + `npm run build` com `NEXT_PUBLIC_API_URL` apontando para o mock |
+| Start frontend | Servidor standalone Next.js na porta 3000 |
+| Wait for servers | Aguarda os dois serviços responderem antes de iniciar os testes |
+| Playwright | Instala Chromium + executa os 7 specs com `CI=true` (2 retries automáticos) |
+| Allure report | Gera o relatório com histórico e publica no GitHub Pages |
+| Upload artifact | Sobe o relatório HTML do Playwright como artefato por 30 dias |
+
+---
+
+## Allure Dashboard
+
+O Allure Dashboard é publicado automaticamente no GitHub Pages após cada execução do CI.
+
+**URL do dashboard:** `https://tiagodevsantana.github.io/sinky/`
+
+**Para ativar (primeira vez):**
+1. Acesse **Settings → Pages** no repositório
+2. Em **Source**, selecione `Deploy from a branch`
+3. Branch: `gh-pages` → pasta `/ (root)`
+4. Salve — após o próximo run do CI o dashboard estará disponível
+
+**O que o dashboard exibe:**
+- Status geral da última execução (passou / falhou / ignorado)
+- Histórico das últimas 20 execuções com trend de estabilidade
+- Gráficos de duração e distribuição por categoria
+- Detalhes de cada teste com steps, screenshots e traces
 
 ---
 
