@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smart-todo-backend
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DB_PATH: /app/data/smart-todo.db
+      CORS_ORIGIN: http://localhost:3000
+    volumes:
+      - sqlite_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/tasks"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    container_name: smart-todo-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      HOSTNAME: "0.0.0.0"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  sqlite_data:

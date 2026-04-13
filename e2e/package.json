@@ -1,0 +1,17 @@
+{
+  "name": "smart-todo-e2e",
+  "version": "1.0.0",
+  "description": "E2E test suite for Smart To-Do List — Sinky Technical Challenge",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.9.0",
+    "@playwright/test": "^1.44.0",
+    "@types/node": "^25.6.0",
+    "typescript": "^5.4.0"
+  }
+}

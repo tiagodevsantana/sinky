@@ -1,0 +1,68 @@
+# =========================
+# NODE / JAVASCRIPT
+# =========================
+node_modules/
+**/node_modules/
+
+# Build / dist
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# =========================
+# BANCO DE DADOS
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# TESTES / QA
+# =========================
+playwright-report/
+test-results/
+
+# =========================
+# IDE / EDITOR
+# =========================
+.idea/
+.claude/
+*.swp
+*.swo
+
+# =========================
+# TYPESCRIPT / CACHE
+# =========================
+*.tsbuildinfo
+.cache/
+.tmp/
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# OUTROS
+# =========================
+*.zip
+*.tar
+*.gz
