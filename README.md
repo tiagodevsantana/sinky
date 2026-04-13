@@ -351,19 +351,27 @@ O workflow `.github/workflows/e2e.yml` é disparado automaticamente a cada `push
 | Allure report | Gera o relatório com histórico e publica no GitHub Pages |
 | Upload artifact | Sobe o relatório HTML do Playwright como artefato por 30 dias |
 
+**Como acompanhar uma execução:**
+1. Acesse a aba **Actions** no repositório do GitHub
+2. Clique no workflow **E2E Tests** mais recente
+3. Acompanhe os steps em tempo real — cada etapa exibe logs detalhados
+4. Ao final, o artefato `playwright-report` fica disponível na seção **Artifacts** da run
+5. Baixe e abra `index.html` localmente para ver o relatório HTML do Playwright
+
 ---
 
 ## Allure Dashboard
 
-O Allure Dashboard é publicado automaticamente no GitHub Pages após cada execução do CI.
+O Allure Dashboard é publicado automaticamente no GitHub Pages após cada execução do CI, com histórico das últimas 20 runs.
 
-**URL do dashboard:** `https://tiagodevsantana.github.io/sinky/`
-
-**Para ativar (primeira vez):**
-1. Acesse **Settings → Pages** no repositório
+**Configuração inicial (necessária apenas uma vez):**
+1. Acesse **Settings → Pages** no repositório do GitHub
 2. Em **Source**, selecione `Deploy from a branch`
 3. Branch: `gh-pages` → pasta `/ (root)`
-4. Salve — após o próximo run do CI o dashboard estará disponível
+4. Clique em **Save**
+5. Aguarde o próximo run do CI concluir — o dashboard estará disponível em:
+
+**URL do dashboard:** `https://tiagodevsantana.github.io/sinky/`
 
 **O que o dashboard exibe:**
 - Status geral da última execução (passou / falhou / ignorado)
