@@ -39,6 +39,8 @@ Thumbs.db
 # =========================
 playwright-report/
 test-results/
+allure-results/
+allure-report/
 
 # =========================
 # IDE / EDITOR

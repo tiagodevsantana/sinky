@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: false, // serial: each test manages its own state against a shared DB
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: [['html', { open: 'never' }], ['list']],
+  reporter: [['html', { open: 'never' }], ['list'], ['allure-playwright']],
 
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:3000',
